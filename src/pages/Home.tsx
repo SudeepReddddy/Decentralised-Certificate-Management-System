@@ -38,7 +38,7 @@ const Home = () => {
           <Search className="h-12 w-12 text-green-600 mb-4" />
           <h2 className="text-xl font-semibold mb-2">Verify Certificates</h2>
           <p className="text-gray-600 mb-4">
-            Instantly verify the authenticity of certificates using the Ethereum blockchain network.
+            Instantly verify the authenticity of certificates generated using the Ethereum blockchain network.
           </p>
           <Link
             to="/verify"
