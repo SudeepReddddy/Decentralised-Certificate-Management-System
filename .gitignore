@@ -24,3 +24,4 @@ bolt/
 *.njsproj
 *.sln
 *.sw?
+.env
