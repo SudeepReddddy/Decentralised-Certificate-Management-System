@@ -40,6 +40,9 @@ const AuthNavbar = () => {
                 <Link to="/university/certificates" className="text-white hover:text-indigo-200 px-3 py-2 rounded-md transition-colors">
                   Certificates
                 </Link>
+                <Link to="/verify" className="text-white hover:text-indigo-200 px-3 py-2 rounded-md transition-colors">
+                  Verify
+                </Link>
               </>
             ) : (
               <>
@@ -48,6 +51,9 @@ const AuthNavbar = () => {
                 </Link>
                 <Link to="/student/certificates" className="text-white hover:text-indigo-200 px-3 py-2 rounded-md transition-colors">
                   My Certificates
+                </Link>
+                <Link to="/verify" className="text-white hover:text-indigo-200 px-3 py-2 rounded-md transition-colors">
+                  Verify
                 </Link>
               </>
             )}

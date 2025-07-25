@@ -18,7 +18,8 @@ const GenerateCertificate = () => {
     studentId: '',
     studentName: '',
     course: '',
-    university: ''
+    university: '',
+    grade: 'A'
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -65,143 +66,127 @@ const GenerateCertificate = () => {
   const generateCertificatePDF = async (certId: string) => {
     try {
       const qrData = `Certificate ID: ${certId}
-          Student ID: ${formData.studentId}
-          Student Name: ${formData.studentName}
-          Course: ${formData.course}
-          University: ${formData.university}`;
+Student: ${formData.studentName}
+Course: ${formData.course}
+Grade: ${formData.grade}
+University: ${formData.university}
+Verify at: ${window.location.origin}/verify`;
 
       const qrCodeDataUrl = await QRCode.toDataURL(qrData);
       const pdf = new jsPDF('l', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
 
-      // Enhanced background with radial gradient effect
-      const centerX = pageWidth / 2;
-      const centerY = pageHeight / 2;
-      const maxRadius = Math.max(pageWidth, pageHeight);
-
-      for (let r = maxRadius; r > 0; r -= 1) {
-        const ratio = r / maxRadius;
-        const color = {
-          r: Math.floor(240 + (255 - 240) * ratio),
-          g: Math.floor(240 + (255 - 240) * ratio),
-          b: Math.floor(250 + (255 - 250) * ratio)
-        };
-        pdf.setFillColor(color.r, color.g, color.b);
-        pdf.circle(centerX, centerY, r, 'F');
+      // Modern gradient background
+      const gradient = pdf.internal.pageSize.getWidth();
+      for (let i = 0; i < pageHeight; i += 2) {
+        const opacity = 0.05 + (i / pageHeight) * 0.1;
+        pdf.setFillColor(79, 70, 229, opacity);
+        pdf.rect(0, i, pageWidth, 2, 'F');
       }
 
-      // Elegant border design
-      pdf.setDrawColor(41, 128, 185);
-      pdf.setLineWidth(0.5);
+      // Modern border design
+      pdf.setDrawColor(79, 70, 229);
+      pdf.setLineWidth(3);
+      pdf.rect(15, 15, pageWidth - 30, pageHeight - 30);
+      
+      pdf.setLineWidth(1);
+      pdf.setDrawColor(165, 180, 252);
+      pdf.rect(20, 20, pageWidth - 40, pageHeight - 40);
 
-      // Outer border
-      pdf.rect(10, 10, pageWidth - 20, pageHeight - 20);
+      // Header section with modern typography
+      pdf.setTextColor(79, 70, 229);
+      pdf.setFontSize(42);
+      pdf.setFont(undefined, 'bold');
+      pdf.text('CERTIFICATE', pageWidth / 2, 50, { align: 'center' });
+      
+      pdf.setFontSize(18);
+      pdf.setFont(undefined, 'normal');
+      pdf.text('OF ACHIEVEMENT', pageWidth / 2, 65, { align: 'center' });
 
-      // Inner border with decorative corners
-      pdf.setLineWidth(0.3);
-      const margin = 15;
-      pdf.rect(margin, margin, pageWidth - 2 * margin, pageHeight - 2 * margin);
+      // Decorative line
+      pdf.setLineWidth(2);
+      pdf.setDrawColor(165, 180, 252);
+      pdf.line(pageWidth / 4, 75, (pageWidth * 3) / 4, 75);
 
-      // Decorative corners
-      const cornerSize = 15;
-      const cornerMargin = margin + 5;
+      // Certificate content
+      const contentY = 100;
 
-      // Top left corner decorations
-      pdf.line(cornerMargin, cornerMargin, cornerMargin + cornerSize, cornerMargin);
-      pdf.line(cornerMargin, cornerMargin, cornerMargin, cornerMargin + cornerSize);
+      pdf.setTextColor(55, 65, 81);
+      pdf.setFontSize(16);
+      pdf.setFont(undefined, 'normal');
+      pdf.text('This certifies that', pageWidth / 2, contentY, { align: 'center' });
 
-      // Top right corner decorations
-      pdf.line(pageWidth - cornerMargin - cornerSize, cornerMargin, pageWidth - cornerMargin, cornerMargin);
-      pdf.line(pageWidth - cornerMargin, cornerMargin, pageWidth - cornerMargin, cornerMargin + cornerSize);
-
-      // Bottom left corner decorations
-      pdf.line(cornerMargin, pageHeight - cornerMargin - cornerSize, cornerMargin, pageHeight - cornerMargin);
-      pdf.line(cornerMargin, pageHeight - cornerMargin, cornerMargin + cornerSize, pageHeight - cornerMargin);
-
-      // Bottom right corner decorations
-      pdf.line(pageWidth - cornerMargin - cornerSize, pageHeight - cornerMargin, pageWidth - cornerMargin, pageHeight - cornerMargin);
-      pdf.line(pageWidth - cornerMargin, pageHeight - cornerMargin - cornerSize, pageWidth - cornerMargin, pageHeight - cornerMargin);
-
-      // Certificate title
-      pdf.setTextColor(41, 128, 185);
+      // Student name with emphasis
       pdf.setFontSize(36);
+      pdf.setTextColor(79, 70, 229);
       pdf.setFont(undefined, 'bold');
-      pdf.text('CERTIFICATE OF COMPLETION', pageWidth / 2, 45, { align: 'center' });
+      pdf.text(formData.studentName, pageWidth / 2, contentY + 20, { align: 'center' });
 
-      // Decorative line under title
-      pdf.setLineWidth(0.5);
-      pdf.line(pageWidth / 4, 55, (pageWidth * 3) / 4, 55);
-
-      // Certificate content with improved typography and spacing
-      const contentStartY = 85;
-
-      pdf.setTextColor(44, 62, 80);
+      // Achievement text
       pdf.setFontSize(16);
+      pdf.setTextColor(55, 65, 81);
       pdf.setFont(undefined, 'normal');
-      pdf.text('This is to certify that', pageWidth / 2, contentStartY - 10, { align: 'center' });
+      pdf.text('has successfully completed the course', pageWidth / 2, contentY + 35, { align: 'center' });
 
-      // Student name with larger, bold font
-      pdf.setFontSize(32);
-      pdf.setTextColor(41, 128, 185);
-      pdf.setFont(undefined, 'bold');
-      pdf.text(formData.studentName, pageWidth / 2, contentStartY + 10, { align: 'center' });
-
-      // Course completion text
-      pdf.setFontSize(16);
-      pdf.setTextColor(44, 62, 80);
-      pdf.setFont(undefined, 'normal');
-      pdf.text('has successfully completed the course', pageWidth / 2, contentStartY + 25, { align: 'center' });
-
-      // Course name with emphasis
+      // Course name
       pdf.setFontSize(28);
-      pdf.setTextColor(41, 128, 185);
+      pdf.setTextColor(79, 70, 229);
       pdf.setFont(undefined, 'bold');
-      pdf.text(formData.course, pageWidth / 2, contentStartY + 45, { align: 'center' });
+      pdf.text(formData.course, pageWidth / 2, contentY + 55, { align: 'center' });
+
+      // Grade display
+      pdf.setFontSize(20);
+      pdf.setTextColor(16, 185, 129);
+      pdf.setFont(undefined, 'bold');
+      pdf.text(`Grade: ${formData.grade}`, pageWidth / 2, contentY + 75, { align: 'center' });
 
       // University name
       pdf.setFontSize(16);
-      pdf.setTextColor(44, 62, 80);
+      pdf.setTextColor(55, 65, 81);
       pdf.setFont(undefined, 'normal');
-      pdf.text(`at ${formData.university}`, pageWidth / 2, contentStartY + 60, { align: 'center' });
+      pdf.text(`at ${formData.university}`, pageWidth / 2, contentY + 90, { align: 'center' });
 
-      // Issue date with improved formatting
-      const issueDate = new Date().toLocaleDateString('en-US', {
+      // Date
+      const issueDate = new Date(certificate.created_at).toLocaleDateString('en-US', {
         day: 'numeric',
         month: 'long',
         year: 'numeric'
       });
       pdf.setFontSize(14);
-      pdf.text(`Issued on ${issueDate}`, pageWidth / 2, contentStartY + 75, { align: 'center' });
+      pdf.text(`Issued on ${issueDate}`, pageWidth / 2, contentY + 105, { align: 'center' });
 
-      // Certificate ID with improved styling
+      // Certificate ID
       pdf.setFontSize(12);
-      pdf.setTextColor(41, 128, 185);
-      pdf.text(`Certificate ID: ${certId}`, pageWidth / 2, contentStartY + 90, { align: 'center' });
+      pdf.setTextColor(79, 70, 229);
+      pdf.text(`Certificate ID: ${certId}`, pageWidth / 2, contentY + 120, { align: 'center' });
 
-      // Enhanced QR code presentation
-      const qrSize = 35;
-      const qrX = 25;
-      const qrY = pageHeight - 60;
+      // QR Code with modern styling
+      const qrSize = 40;
+      const qrX = 30;
+      const qrY = pageHeight - 70;
 
       // QR code background
       pdf.setFillColor(255, 255, 255);
-      pdf.roundedRect(qrX - 5, qrY - 5, qrSize + 10, qrSize + 10, 3, 3, 'F');
+      pdf.roundedRect(qrX - 5, qrY - 5, qrSize + 10, qrSize + 10, 5, 5, 'F');
+      pdf.setDrawColor(79, 70, 229);
+      pdf.setLineWidth(1);
+      pdf.roundedRect(qrX - 5, qrY - 5, qrSize + 10, qrSize + 10, 5, 5, 'S');
 
-      // Add QR code
       pdf.addImage(qrCodeDataUrl, 'PNG', qrX, qrY, qrSize, qrSize);
 
-      // Add blockchain verification text
-      // pdf.setFontSize(10);
-      // pdf.setTextColor(44, 62, 80);
-      // pdf.text('Ethereum Blockchain Verified', qrX, qrY + qrSize + 10);
+      // Verification text
+      pdf.setFontSize(10);
+      pdf.setTextColor(107, 114, 128);
+      pdf.text('Scan to verify', qrX + qrSize/2, qrY + qrSize + 15, { align: 'center' });
 
-      // Add Ethereum logo
-      // pdf.setFillColor(41, 128, 185);
-      // pdf.circle(qrX + qrSize + 15, qrY + qrSize / 2, 5, 'F');
-      // pdf.setTextColor(41, 128, 185);
-      // pdf.setFontSize(8);
-      // pdf.text('ETH', qrX + qrSize + 15, qrY + qrSize / 2 + 10, { align: 'center' });
+      // Signature area
+      pdf.setDrawColor(107, 114, 128);
+      pdf.setLineWidth(0.5);
+      pdf.line(pageWidth - 120, pageHeight - 40, pageWidth - 40, pageHeight - 40);
+      pdf.setFontSize(12);
+      pdf.setTextColor(107, 114, 128);
+      pdf.text('Authorized Signature', pageWidth - 80, pageHeight - 30, { align: 'center' });
 
       return pdf;
     } catch (error) {
@@ -270,6 +255,7 @@ const GenerateCertificate = () => {
             student_id: formData.studentId,
             student_name: formData.studentName,
             course: formData.course,
+            grade: formData.grade,
             university: formData.university,
             blockchain_tx_hash: receipt.transactionHash,
             blockchain_verified: true
@@ -291,6 +277,7 @@ const GenerateCertificate = () => {
             student_id: formData.studentId,
             student_name: formData.studentName,
             course: formData.course,
+            grade: formData.grade,
             university: formData.university,
             blockchain_verified: false
           });
@@ -310,6 +297,7 @@ const GenerateCertificate = () => {
           student_id: formData.studentId,
           student_name: formData.studentName,
           course: formData.course,
+          grade: formData.grade,
           university: formData.university,
           blockchain_verified: false
         });
@@ -392,6 +380,37 @@ const GenerateCertificate = () => {
                   className="mt-1 block w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                   required
                 />
+              </div>
+
+              <div>
+                <label htmlFor="grade" className="block text-sm font-medium text-gray-700">
+                  Grade
+                </label>
+                <select
+                  id="grade"
+                  value={formData.grade}
+                  onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
+                  className="mt-1 block w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  required
+                >
+                  <option value="A+">A+</option>
+                  <option value="A">A</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B">B</option>
+                  <option value="B-">B-</option>
+                  <option value="C+">C+</option>
+                  <option value="C">C</option>
+                  <option value="C-">C-</option>
+                  <option value="D+">D+</option>
+                  <option value="D">D</option>
+                  <option value="F">F</option>
+                  <option value="Pass">Pass</option>
+                  <option value="Fail">Fail</option>
+                  <option value="Distinction">Distinction</option>
+                  <option value="Merit">Merit</option>
+                  <option value="Credit">Credit</option>
+                </select>
               </div>
 
               <div>
@@ -501,7 +520,8 @@ const GenerateCertificate = () => {
                   studentId: '',
                   studentName: '',
                   course: '',
-                  university: ''
+                  university: '',
+                  grade: 'A'
                 });
               }}
               className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800"

@@ -30,7 +30,12 @@ const Login = () => {
       }
 
       if (result.success) {
-        navigate(loginType === 'university' ? '/university/dashboard' : '/student/dashboard');
+        // Redirect to appropriate dashboard
+        if (loginType === 'university') {
+          navigate('/university/dashboard');
+        } else {
+          navigate('/student/dashboard');
+        }
       } else {
         setError(result.error || 'Login failed');
       }
